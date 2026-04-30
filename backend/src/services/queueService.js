@@ -202,6 +202,13 @@ async function skipCurrentToken(roomCode, counterLabel = null) {
   );
 
   if (!missed) return { message: 'No token currently being served' };
+
+  // Free up slot booking if the missed token had one
+  if (missed.isSlotBooking) {
+    const { cancelBooking } = require('../services/slotService');
+    await cancelBooking(missed.studentEmail, roomCode).catch(() => {});
+  }
+
   return { message: `Token #${missed.tokenNumber} marked as missed` };
 }
 

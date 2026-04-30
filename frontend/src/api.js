@@ -145,6 +145,9 @@ export const getMyBooking = (roomCode, date) =>
 export const cancelMyBooking = (roomCode, date) =>
   request(`/api/slots/${encodeURIComponent(roomCode)}/my-booking${date ? `?date=${date}` : ''}`, { method: 'DELETE' });
 
+export const leaveQueue = () =>
+  request('/api/tokens/room/leave', { method: 'DELETE' });
+
 export const disableSlot = (slotId) =>
   request(`/api/slots/${slotId}/disable`, { method: 'PATCH' });
 

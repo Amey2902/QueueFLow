@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../App';
-import { generateRoomToken, getRoomStatus, logout, getSlots, bookSlot, getMyBooking, cancelMyBooking } from '../api';
+import { generateRoomToken, getRoomStatus, logout, getSlots, bookSlot, getMyBooking, cancelMyBooking, leaveQueue } from '../api';
 
 function formatTime(d) {
   return new Date(d).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -242,7 +242,27 @@ export default function RoomDashboard() {
         )}
 
         <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12, marginBottom: 12 }}>Updates every 5 seconds</p>
-        <SlotBookingPanel roomCode={roomCode} />
+
+        {!isDone && !isServing && (
+          <div style={{ marginBottom: 12 }}>
+            <button
+              className="btn btn-ghost btn-full"
+              onClick={async () => {
+                if (!window.confirm('Are you sure you want to leave the queue? You will lose your position.')) return;
+                try {
+                  await leaveQueue();
+                  setStatus(prev => ({ ...prev, status: 'done' }));
+                } catch (err) {
+                  console.error(err);
+                }
+              }}
+            >
+              Leave Queue
+            </button>
+          </div>
+        )}
+
+        {!isDone && !isServing && <SlotBookingPanel roomCode={roomCode} />}
       </div>
     </div>
   );
