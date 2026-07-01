@@ -8,7 +8,17 @@ const app = express();
 
 // CORS — allow frontend origin with credentials for session cookies
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // allow server-to-server
+    if (
+      origin.includes('localhost') ||
+      origin.endsWith('.vercel.app') ||
+      origin.endsWith('.onrender.com')
+    ) {
+      return callback(null, true);
+    }
+    callback(null, true); // allow all for now
+  },
   credentials: true,
 }));
 
