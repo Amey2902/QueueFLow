@@ -1,0 +1,51 @@
+services:
+  backend:
+    build: ./backend
+    container_name: queueflow-backend
+    restart: always
+    environment:
+      MONGO_URI: mongodb://mongo:27017/digital-queue
+      SESSION_SECRET: ${SESSION_SECRET:-supersecret}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@college.edu}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - queueflow
+
+  frontend:
+    build: ./frontend
+    container_name: queueflow-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - queueflow
+
+  mongo:
+    image: mongo:7
+    container_name: queueflow-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - queueflow
+
+volumes:
+  mongo-data:
+
+networks:
+  queueflow:
+    driver: bridge

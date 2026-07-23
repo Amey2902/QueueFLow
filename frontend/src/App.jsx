@@ -89,7 +89,7 @@ export default function App() {
     hasRestoredRef.current = true;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 1500);
-    fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, { credentials: 'include', signal: controller.signal })
+    fetch('http://localhost:5000/api/auth/me', { credentials: 'include', signal: controller.signal })
       .then(r => r.json())
       .then(d => {
         if (d.role) {

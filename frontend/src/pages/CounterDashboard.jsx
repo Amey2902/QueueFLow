@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../App';
 import { logout } from '../api';
 
-const BASE = import.meta.env.VITE_API_URL;
+const BASE = 'http://localhost:5000';
 async function api(path, method = 'GET') {
   const res = await fetch(`${BASE}${path}`, { method, credentials: 'include', headers: { 'Content-Type': 'application/json' } });
   return res.json();
