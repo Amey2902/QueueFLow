@@ -89,7 +89,7 @@ export default function App() {
     hasRestoredRef.current = true;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 1500);
-    fetch('http://localhost:5000/api/auth/me', { credentials: 'include', signal: controller.signal })
+    fetch('/api/auth/me', { credentials: 'include', signal: controller.signal })
       .then(r => r.json())
       .then(d => {
         if (d.role) {
