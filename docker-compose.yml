@@ -4,17 +4,23 @@ services:
     container_name: queueflow-backend
     restart: always
     environment:
+      NODE_ENV: production
       MONGO_URI: mongodb://mongo:27017/digital-queue
       SESSION_SECRET: ${SESSION_SECRET:-supersecret}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@college.edu}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
-      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
       SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USER: ${SMTP_USER:-}
-      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
     depends_on:
-      mongo:
-        condition: service_healthy
+      - mongo
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const http = require('http'); const req = http.get('http://localhost:5000/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }); req.on('error', () => process.exit(1));\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     networks:
       - queueflow
 
@@ -26,13 +32,19 @@ services:
       - "80:80"
     depends_on:
       - backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
     networks:
       - queueflow
 
   mongo:
     image: mongo:7
     container_name: queueflow-mongo
-    restart: unless-stopped
+    restart: always
     volumes:
       - mongo-data:/data/db
     healthcheck:

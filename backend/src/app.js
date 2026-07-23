@@ -6,9 +6,23 @@ const MongoStore = require('connect-mongo').default;
 
 const app = express();
 
-// CORS — allow frontend origin with credentials for session cookies
+// CORS — allow frontend origins with credentials for session cookies
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:80',
+  'http://localhost',
+];
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: function (origin, callback) {
+    // allow requests with no origin (nginx proxy, curl, mobile apps)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // allow any origin in production (when behind nginx proxy)
+    if (process.env.NODE_ENV === 'production') return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 
